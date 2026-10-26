@@ -1,7 +1,8 @@
 /**
- * Usage analyser (experimental): tokens, cost, cache use and time of every session, with findings that say how to
- * spend less. The findings are first guesses, and ideas for other ways to analyse usage are welcome. It reads the model requests in Pi Pocket's own store (counts, timings, tool names; never message text) through a
- * helper script that keeps an incremental cache, and shows the report on a page. Owner only. No network.
+ * Usage analyser (experimental): token, cost, cache and time findings; ideas for other analyses are welcome. An
+ * owner-only page runs a child process that reads Pi Pocket records, never keeps or shows message text, and stores
+ * a cache in <data>/usage-analyser/. Ask PiP sends findings to PiP. sessions() is experimental; /pip.js and the
+ * pocket.sqlite record shapes are internal and can change in any release. No network.
  */
 import { execFile } from "node:child_process";
 import { join } from "node:path";
@@ -13,39 +14,37 @@ export default function createUsageAnalyser(host: Host, web: Web) {
     const core = join(import.meta.dirname, "usage-analyser", "analyse.mjs");
     const db = join(host.dataDir, "pocket.sqlite");
     const cache = join(host.dataDir, "usage-analyser", "cache.json");
-    // One run per range at a time; a second page asking meanwhile shares it.
-    const running = new Map<string, Promise<any>>();
+    function run(days: string, signal: AbortSignal) {
+        return new Promise<any>((resolve, reject) => {
+            const range = days === "0" ? ["--all"] : ["--days", days];
 
-    function run(days: string) {
-        let job = running.get(days);
-
-        if (!job) {
-            job = new Promise((resolve, reject) => {
-                const range = days === "0" ? ["--all"] : ["--days", days];
-
-                // A child process, so reading a large store never stops the server.
-                execFile(
-                    process.execPath,
-                    ["--no-warnings", core, ...range, "--json", "--db", db, "--cache", cache],
-                    { maxBuffer: 64 * 1024 * 1024 },
-                    (error, stdout, stderr) =>
-                        error ? reject(new Error(stderr || error.message)) : resolve(JSON.parse(stdout)),
-                );
-            }).finally(() => running.delete(days));
-            running.set(days, job);
-        }
-
-        return job;
+            execFile(
+                process.execPath,
+                ["--no-warnings", core, ...range, "--json", "--db", db, "--cache", cache],
+                { maxBuffer: 64 * 1024 * 1024, timeout: 120_000, signal, env: { HOME: process.env.HOME } },
+                (error, stdout, stderr) => {
+                    if (error) {
+                        reject(new Error(stderr || error.message));
+                        return;
+                    }
+                    try {
+                        resolve(JSON.parse(stdout));
+                    } catch (failure) {
+                        reject(failure);
+                    }
+                },
+            );
+        });
     }
 
-    web.route("GET", "report", async ({ query, sessions }) => {
+    web.route("GET", "report", async ({ query, sessions, signal }) => {
         const days = query.get("days") ?? "30";
 
         if (!RANGES.has(days)) {
             throw web.error(400, "days must be 7, 30, 90 or 0");
         }
 
-        const report = await run(days);
+        const report = await run(days, signal);
         const known = new Map(sessions().map((each) => [each.id, each]));
         const name = (id: number) => known.get(id)?.title || `#${id}`;
 
@@ -57,9 +56,13 @@ export default function createUsageAnalyser(host: Host, web: Web) {
         for (const tip of report.tips) {
             for (const each of tip.sessions) {
                 each.title = name(each.id);
+                each.quotedTitle = host.text.quoted(each.title, 80);
+                each.quotedDetail = host.text.quoted(each.detail, 160);
             }
         }
 
+        // Quote the executable path for a shell, including data folders that contain spaces or quotes.
+        report.command = `node '${core.replaceAll("'", "'\\''")}' ${days === "0" ? "--all" : `--days ${days}`} --json --db '${db.replaceAll("'", "'\\''")}' --cache '${cache.replaceAll("'", "'\\''")}'`;
         return report;
     });
 
