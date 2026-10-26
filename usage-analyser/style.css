@@ -1,0 +1,30 @@
+.ua { display: flex; flex-direction: column; gap: 16px; padding: 4px 2px 24px; }
+.ua h3 { margin: 0 0 6px; font-size: 13px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+.ua-bar { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.ua-bar .button.on { background: var(--accent); color: var(--bg); }
+.ua-grow { flex: 1; }
+.ua-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 8px; }
+.ua-card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; min-width: 0; }
+.ua-card b { display: block; font-size: 18px; }
+.ua-card span { font-size: 12px; color: var(--muted); }
+.ua-mix { display: flex; height: 14px; border-radius: 7px; overflow: hidden; background: var(--line); }
+.ua-legend { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 6px; font-size: 12px; }
+.ua-dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 5px; }
+.ua-days { display: flex; align-items: flex-end; gap: 2px; height: 64px; }
+.ua-days i { flex: 1; min-width: 2px; background: var(--accent); border-radius: 2px 2px 0 0; opacity: .85; }
+.ua-tip, .ua-row { border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; background: var(--card); }
+.ua-head { display: flex; gap: 8px; align-items: baseline; }
+.ua-head > :first-child { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.ua-save { color: var(--ok); white-space: nowrap; font-weight: 600; }
+.ua-list { display: flex; flex-direction: column; gap: 6px; }
+.ua-row > button { all: unset; display: block; width: 100%; cursor: pointer; }
+.ua-meta { display: flex; gap: 12px; flex-wrap: wrap; font-size: 12px; color: var(--muted); margin-top: 2px; }
+.ua-detail { margin-top: 8px; display: flex; flex-direction: column; gap: 8px; }
+.ua-kv { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 4px 12px; font-size: 12px; }
+.ua-kv span { color: var(--muted); }
+.ua-link { color: var(--accent); cursor: pointer; background: none; border: 0; padding: 0; font: inherit; text-align: left; }
+.ua-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.ua-table th { text-align: right; color: var(--muted); font-weight: 500; }
+.ua-table td { text-align: right; padding: 3px 0 3px 8px; border-top: 1px solid var(--line); }
+.ua-table th:first-child, .ua-table td:first-child { text-align: left; padding-left: 0; max-width: 40vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ua-flag { font-size: 11px; padding: 0 6px; border-radius: 8px; border: 1px solid var(--warn); color: var(--warn); }
