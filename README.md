@@ -14,6 +14,6 @@ Install from the Pi Pocket extension gallery, then turn it on in Menu → Extens
 
     node ~/.pi-pocket/extensions/usage-analyser/analyse.mjs --days 30 [--json]
 
-Test: `node --test test/`.
+Test: `node --test test/analyse.test.mjs`.
 
 MIT, Pierre Marrec.
