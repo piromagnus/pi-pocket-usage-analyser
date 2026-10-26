@@ -2,7 +2,8 @@
  * Usage analyser (experimental): token, cost, cache and time findings; ideas for other analyses are welcome. An
  * owner-only page runs a child process that reads Pi Pocket records, never keeps or shows message text, and stores
  * a cache in <data>/usage-analyser/. Ask PiP sends findings to PiP. sessions() is experimental; /pip.js and the
- * pocket.sqlite record shapes are internal and can change in any release. No network.
+ * pocket.sqlite record shapes are internal and can change in any release. The analyser makes no network requests;
+ * PiP may send findings to its model provider.
  */
 import { execFile } from "node:child_process";
 import { join } from "node:path";
